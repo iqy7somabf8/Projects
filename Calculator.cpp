@@ -20,8 +20,6 @@ During update log:
 
 
 /*
-This calculator would best work in any IDE outside of sololearn, due to the fact that sololearn does not allow runtime console input
-
 Keywords: '^' is for power of calculation| 's' is for square root calcualtion
 
 sample input:
