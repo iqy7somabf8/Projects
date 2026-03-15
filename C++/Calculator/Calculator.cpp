@@ -94,7 +94,7 @@ class Calculator{
             for(char c : input){
                 if(isdigit(c) || c == '.') currentNum += c;
 
-                //Check if its an operator, then add the currentNum to our vector if its not empty and then we add the operator by passing it as a temp class
+                
                 else if(operators.find(c) != operators.end()){
                     if(!currentNum.empty()){
                         token.push_back(currentNum); 
@@ -112,10 +112,12 @@ class Calculator{
 
         double loopProblem(std::vector<std::string>& token){
             for(int i=0;i<token.size()+1;i++){
-                    if(token[i] == "^") token = this->calculatePower(token, i); //Orginally wanted to do a switch statement, but jeez did it start screaming at me
+                    if(token[i] == "^") token = this->calculatePower(token, i);
+                    else if(token[i] == "s") token = this->squareRoot(token, i);   
+            }
+            for(int i=0;i<token.size()+1;i++){
+                    if(token[i] == "/") token = this->divide(token, i);
                     else if(token[i] == "*") token = this->multiply(token, i);
-                    else if(token[i] == "/") token = this->divide(token, i);
-                    else if(token[i] == "s") token = this->squareRoot(token, i);
             }
             return this->addAndSubtract(token);
         }
