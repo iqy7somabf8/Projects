@@ -4,6 +4,8 @@
 #include <ctime>
 #include <cctype>
 #include <chrono>
+#include <fstream>
+#include <filesystem>
 
 class Account{
 private:
@@ -18,11 +20,27 @@ private:
     int money = 0;
     bool accountExists = false;
     bool loggedIn = false;
-    bool debug = false;
-    std::vector<std::string> history;
+    bool debug = true;
+
 public:
     Account(std::string tempName) : name(tempName){}
-    Account(std::string name, std::string password, dob dateOfBirth) : name(name), password(password), dateOfBirth(dateOfBirth), accountExists(true), loggedIn(true){}
+    Account(std::string name, std::string password, dob dateOfBirth, bool creatingFromFile, int initialMoney = 0) : name(name), password(password), dateOfBirth(dateOfBirth), accountExists(true), loggedIn(true), money(initialMoney){
+        std::ifstream history("history.txt");
+        if(!history.is_open()){
+            std::cerr << "Error creating history file!\n";
+        }
+        else {
+            this->debugOutput("History file found!");
+            history.close();
+        }
+        if(!creatingFromFile){
+            std::ofstream acc("Account.txt");
+            acc << name << "\n" << password << "\n" << this->dateOfBirth.day << "\n" << this->dateOfBirth.month << "\n" << this->dateOfBirth.year << "\n";
+            acc.close();
+            this->debugOutput("Account file updated!");
+        }
+    }
+
     ~Account(){}                  
 
     std::string getName(){return name;}
@@ -35,7 +53,6 @@ public:
     bool getLoggedIn(){return loggedIn;}
     bool getDebug(){return debug;}
     time_t getCurrentTime(){return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());}
-    std::vector<std::string> getHistory(){return history;}
     
 
     void setName(std::string sName){name = sName;}
@@ -46,18 +63,69 @@ public:
     void setAccountExists(bool sAccountExists){accountExists = sAccountExists;}
     void setLoggedIn(bool sLoggedIn){loggedIn = sLoggedIn;}
     void setDebug(bool sDebug){debug = sDebug;}
-    void addHistory(std::string input){history.push_back(input);}
+    void addHistory(std::string input){
+        std::ofstream history("history.txt", std::ios::app);
+        history << input << "\n";
+        history.close();
+    }
 
     void deposit(int amount){money += amount;}
     void withdraw(int amount){money -= amount;}
 
-    void deleteHistory(){history.clear();}
+    void deleteHistory(){
+        std::ofstream history("history.txt", std::ofstream::trunc);
+        history.close();
+    }
+
+    void debugOutput(std::string message){
+        if(this->debug){
+            std::cout << "[DEBUG] " << message << "\n";
+        }
+    }
+
+    void outputHistory(){
+        std::string output;
+        std::ifstream history("history.txt");
+        while(std::getline(history, output)){
+            std::cout << output << "\n";
+        }
+        history.close();
+    }
+
+    bool checkAccountFile(){
+        std::ifstream acc("Account.txt");
+        if(!acc.is_open() || std::filesystem::is_empty("Account.txt")){
+            this->debugOutput("Account file not found!");
+            return false;
+        }
+        acc.close();
+        return true;
+    }
+
+    void syncData(){
+        std::ofstream acc("Account.txt");
+        acc << name << "\n" << password << "\n" << this->dateOfBirth.day << "\n" << this->dateOfBirth.month << "\n" << this->dateOfBirth.year << "\n" << money;
+        acc.close();
+        this->debugOutput("Data Synced!");
+    }
 
     std::string getFullDob(){return std::to_string(this->getDobDay()) + "/" + std::to_string(this->getDobMonth()) + "/" + std::to_string(this->getDobYear());}
 };
 
 int main(){
     Account account("John Pork");
+    if(account.checkAccountFile()){
+        std::ifstream acc("Account.txt");
+        std::string name, password, day, month, year, money;
+        std::getline(acc, name);
+        std::getline(acc, password);
+        std::getline(acc, day);
+        std::getline(acc, month);
+        std::getline(acc, year);
+        std::getline(acc, money);
+        account = Account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)}, true, std::stoi(money));
+        acc.close();
+    }
     std::string input;
     while (true){
         std::cout << "\nBloo's banking service\n";
@@ -108,14 +176,8 @@ int main(){
                     std::cout << "Balance: " << account.getMoney() << "$\n\n";
                 }
                 else if(input == "4"){
-                    if(account.getHistory().size() == 0){
-                        std::cout << "\nNo banking history.\n\n";
-                        continue;
-                    }
                     std::cout << "\nBanking History:\n\n";
-                    for (std::string entry : account.getHistory()){
-                        std::cout << ">> " << entry;
-                    }
+                    account.outputHistory();
                     std::cout << "\n";
                 }
                 else if(input == "5"){
@@ -146,7 +208,7 @@ int main(){
                     year += c;
                 }
             }
-            account = Account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)});
+            account = Account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)}, false);
             std::cout << "\nAccount created successfully!\nWelcome to Bloo's banking service, " << account.getName() << "!\n";
         }
         else if(input == "1" && account.getAccountExists() && !account.getLoggedIn()){
@@ -233,6 +295,7 @@ int main(){
             }
         }
         else if(input == "end" || input == "END"){
+            account.syncData();
             std::cout << "\nThank you for banking with us!\nGood bye!\n";
             break;
         }
