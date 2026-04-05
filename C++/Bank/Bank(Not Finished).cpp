@@ -20,7 +20,7 @@ private:
     int money = 0;
     bool accountExists = false;
     bool loggedIn = false;
-    bool debug = true;
+    bool debug = false;
 
 public:
     Account(std::string tempName) : name(tempName){}
@@ -285,6 +285,8 @@ int main(){
                 }
                 else if(input == "5"){
                     account = Account("John Pork");
+                    std::ofstream acc("Account.txt", std::ofstream::trunc);
+                    acc.close();
                     std::cout << "\nAccount deleted successfully!\n";
                     break;
                 }
