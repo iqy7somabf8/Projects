@@ -1,6 +1,6 @@
-bloo
-testPassword123
-14
-8
-2009
-209
+name=bloo
+password=67
+dob_day=14
+dob_month=8
+dob_year=2009
+balance=0

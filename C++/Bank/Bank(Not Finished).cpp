@@ -20,25 +20,21 @@ private:
     int money = 0;
     bool accountExists = false;
     bool loggedIn = false;
-    bool debug = false;
+    bool debug = true;
 
 public:
     Account(std::string tempName) : name(tempName){}
-    Account(std::string name, std::string password, dob dateOfBirth, bool creatingFromFile, int initialMoney = 0) : name(name), password(password), dateOfBirth(dateOfBirth), accountExists(true), loggedIn(true), money(initialMoney){
+
+    Account(std::string name, std::string password, dob dateOfBirth, int initialMoney = 0) : name(name), password(password), dateOfBirth(dateOfBirth), accountExists(true), loggedIn(true), money(initialMoney){
         std::ifstream history("history.txt");
         if(!history.is_open()){
-            std::cerr << "Error creating history file!\n";
+            this->debugOutput("Error creating history file!");
         }
         else {
             this->debugOutput("History file found!");
             history.close();
         }
-        if(!creatingFromFile){
-            std::ofstream acc("Account.txt");
-            acc << name << "\n" << password << "\n" << this->dateOfBirth.day << "\n" << this->dateOfBirth.month << "\n" << this->dateOfBirth.year << "\n";
-            acc.close();
-            this->debugOutput("Account file updated!");
-        }
+            this->saveAccountToFile();
     }
 
     ~Account(){}                  
@@ -63,14 +59,16 @@ public:
     void setAccountExists(bool sAccountExists){accountExists = sAccountExists;}
     void setLoggedIn(bool sLoggedIn){loggedIn = sLoggedIn;}
     void setDebug(bool sDebug){debug = sDebug;}
+
+
+    void deposit(int amount){money += amount;}
+    void withdraw(int amount){money -= amount;}
+
     void addHistory(std::string input){
         std::ofstream history("history.txt", std::ios::app);
         history << input << "\n";
         history.close();
     }
-
-    void deposit(int amount){money += amount;}
-    void withdraw(int amount){money -= amount;}
 
     void deleteHistory(){
         std::ofstream history("history.txt", std::ofstream::trunc);
@@ -95,37 +93,100 @@ public:
     bool checkAccountFile(){
         std::ifstream acc("Account.txt");
         if(!acc.is_open() || std::filesystem::is_empty("Account.txt")){
-            this->debugOutput("Account file not found!");
+            this->debugOutput("Account file not found / no data!");
             return false;
         }
         acc.close();
         return true;
     }
 
-    void syncData(){
+    void saveAccountToFile(){
         std::ofstream acc("Account.txt");
-        acc << name << "\n" << password << "\n" << this->dateOfBirth.day << "\n" << this->dateOfBirth.month << "\n" << this->dateOfBirth.year << "\n" << money;
+        acc << "name=" << name << "\n" 
+            << "password=" << password << "\n" 
+            << "dob_day=" << dateOfBirth.day << "\n" 
+            << "dob_month=" << dateOfBirth.month << "\n" 
+            << "dob_year=" << dateOfBirth.year << "\n"
+            << "balance=" << money << "\n";
         acc.close();
-        this->debugOutput("Data Synced!");
+        this->debugOutput("Account data saved to file!");
     }
+
+    void loadAccountFromFile(){
+        std::ifstream acc("Account.txt");
+        std::string data;
+        while(std::getline(acc, data)){
+            auto pos = data.find('=');
+            if(pos == std::string::npos) continue;
+
+            std::string key = data.substr(0, pos);
+            std::string value = data.substr(pos + 1);
+            if(key == "name") this->name = value;
+            else if(key == "password") this->password = value;
+            else if(key == "dob_day") this->dateOfBirth.day = std::stoi(value);
+            else if(key == "dob_month") this->dateOfBirth.month = std::stoi(value);
+            else if(key == "dob_year") this->dateOfBirth.year = std::stoi(value);
+            else if(key == "balance") this->money = std::stoi(value);
+        }
+        this->accountExists = true;
+        this->loggedIn = false;
+        acc.close();
+        this->debugOutput("Account data loaded from file!");
+    }
+
+    void saveConfigToFile(){
+        std::ofstream config("config.txt");
+        config << "version=1\n";
+        config << "debug=" << this->debug << "\n";
+        config.close();
+        this->debugOutput("Config saved to file!");
+    }
+
+    void loadConfigFromFile(){
+        std::ifstream config("config.txt");
+        std::string data;
+        int version;
+        while(std::getline(config, data)){
+            auto pos = data.find('=');
+            if(pos == std::string::npos) continue;
+
+            std::string key = data.substr(0, pos);
+            std::string value = data.substr(pos + 1);
+            if(key == "version") version = std::stoi(value);
+            else if(key == "debug") this->debug = (value == "true" ? true : false);
+        }
+        config.close();
+        this->debugOutput("Config loaded from file!");
+    }
+
+    bool checkConfigFile(){
+        std::ifstream config("config.txt");
+        if(!config.is_open() || std::filesystem::is_empty("config.txt")){
+            this-> debugOutput("Config file not found / no data!");
+            return false;
+        }
+        else {
+            this->debugOutput("Config file found!");
+            config.close();
+            return true;
+        }
+    }
+
 
     std::string getFullDob(){return std::to_string(this->getDobDay()) + "/" + std::to_string(this->getDobMonth()) + "/" + std::to_string(this->getDobYear());}
 };
 
 int main(){
     Account account("John Pork");
-    if(account.checkAccountFile()){
-        std::ifstream acc("Account.txt");
-        std::string name, password, day, month, year, money;
-        std::getline(acc, name);
-        std::getline(acc, password);
-        std::getline(acc, day);
-        std::getline(acc, month);
-        std::getline(acc, year);
-        std::getline(acc, money);
-        account = Account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)}, true, std::stoi(money));
-        acc.close();
+
+    if(account.checkAccountFile()){ //Create account from file if found
+        account.loadAccountFromFile();
     }
+    if(account.checkConfigFile()){ //Load config data from file if found
+        account.loadConfigFromFile();
+    }
+
+    
     std::string input;
     while (true){
         std::cout << "\nBloo's banking service\n";
@@ -208,7 +269,7 @@ int main(){
                     year += c;
                 }
             }
-            account = Account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)}, false);
+            account = Account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)}, 0);
             std::cout << "\nAccount created successfully!\nWelcome to Bloo's banking service, " << account.getName() << "!\n";
         }
         else if(input == "1" && account.getAccountExists() && !account.getLoggedIn()){
@@ -297,7 +358,8 @@ int main(){
             }
         }
         else if(input == "end" || input == "END"){
-            account.syncData();
+            account.saveAccountToFile();
+            account.saveConfigToFile();
             std::cout << "\nThank you for banking with us!\nGood bye!\n";
             break;
         }
