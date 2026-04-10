@@ -20,7 +20,7 @@ private:
     int money = 0;
     bool accountExists = false;
     bool loggedIn = false;
-    bool debug = true;
+    bool debug = false;
 
 public:
     Account(std::string tempName) : name(tempName){}
@@ -300,7 +300,7 @@ int main(){
                 std::cout << "| 3. Change Date of Birth\n";
                 std::cout << "| 4. Logout\n";
                 std::cout << "| 5. Delete Account\n";
-                std::cout << "| 6. Debug: currently " << (account.getDebug() ? "enabled" : "disabled") << " (No functionality yet, still deciding on how I want to implement it.)\n";
+                std::cout << "| 6. Debug: currently " << (account.getDebug() ? "enabled\n" : "disabled\n");
                 std::cout << "| To go back, type 'end'\n";
                 std::cout << ">> ";
                 std::getline(std::cin, input);
