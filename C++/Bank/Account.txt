@@ -3,4 +3,5 @@ password=67
 dob_day=14
 dob_month=8
 dob_year=2009
-balance=0
+balance=1838
+interest=1.03903
