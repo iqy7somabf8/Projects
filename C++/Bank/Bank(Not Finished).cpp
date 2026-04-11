@@ -189,7 +189,7 @@ public:
     void generateInterestRate(){
         static std::random_device rd; //Why ts gotta be so complicated
         static std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis(1.02, 1.04); //Pick random interest between 2% and 4%.
+        std::uniform_real_distribution<> dis(1.02, 1.04); //Pick random interest between 2% and 4%. ofc with 5 trillion decimals :/
         this->interest = dis(gen);
         this->debugOutput("Generated new interest rate: " + std::to_string(this->interest));
     }
@@ -207,7 +207,6 @@ public:
 
 int main(){
     Account account("John Pork");
-    account.setYear(account.getCurrentYear()); //is this... like smart?? I gots no clue
     
     if(account.getYear() < account.getCurrentYear()){
         account.calculateInterest(); //This.... could be bad? Unless it gives issues, ill ignore it ig
@@ -219,6 +218,7 @@ int main(){
     if(account.checkAccountFile()){
         account.loadAccountFromFile();
     }
+    account.setYear(account.getCurrentYear()); //is this... like smart?? I gots no clue
 
     
     std::string input;
