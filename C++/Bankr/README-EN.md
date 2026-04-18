@@ -29,3 +29,10 @@
     -Added a config.txt file where settings are stored. Currently only stores the debug setting. Uses versions to make sure that if you're loading a file from version 1, but the data loader function is, lest say version 5 for example, you don't start looking for data that doesnt exist.
     -Small code cleanup to hopefully look more readable and be more closely aligned with OOP related best practices.
     -Loading an Account from a file will now prompt the user to log in again instead of being already logged in. Better security? Yeah idk.
+
+    18/04/26|V0.6
+    -Implemented new logging system.
+    -Changed file structures so that account and logger have their own folder. Moved the .txt files into their own data folder.
+    -Small code cleanup and implementing forgotten file.is_open() checks.
+    -Comeplete code restructure. Every class now has its own .h and .cpp file. Bankr.cpp now just includes the .h files instead of containign the implementation alltogether.
+    -Project renamed to "Bankr" (sounds cool idk).
