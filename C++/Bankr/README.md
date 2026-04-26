@@ -1,4 +1,4 @@
-## Bankr
+# Bankr
 
 Bankr is an all-in-one banking app built for ease-of-use. Features data crude data saving methods.
 
