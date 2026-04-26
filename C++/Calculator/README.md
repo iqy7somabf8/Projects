@@ -1,4 +1,4 @@
-# Calculator.cpp Documentation
+# Calculator
 
 An app to calculate just about anything you need. Has semi-advanced functionality like square root and power of.
 
