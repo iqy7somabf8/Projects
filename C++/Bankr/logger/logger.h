@@ -10,8 +10,6 @@ class Logger{
 private:
 const std::string LOG_PATH = "data/log.txt";
 
-std::string getLogPath();
-
 public:
     Logger();
     ~Logger();
@@ -23,6 +21,8 @@ public:
     time_t getCurrentTime();
 
     void deleteLog();
+
+    std::string getLogPath() const;
 };
 
 #endif

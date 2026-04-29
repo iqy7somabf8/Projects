@@ -9,7 +9,6 @@
 #include <random>
 #include <cmath>
 #include "account/account.h"
-#include "logger/logger.h"
 
 int main(){
     Account account("John Pork");
@@ -108,13 +107,14 @@ int main(){
                     year += c;
                 }
             }
-            account.setName(name);
+            /*account.setName(name);
             account.setPassword(password);
             account.setDobDay(std::stoi(day));
             account.setDobMonth(std::stoi(month));
             account.setDobYear(std::stoi(year));
             account.setAccountExists(true);
-            account.setLoggedIn(true);
+            account.setLoggedIn(true); */
+            Account account(name, password, {std::stoi(year), std::stoi(month), std::stoi(day)}, 0);
             std::cout << "\nAccount created successfully!\nWelcome to Bloo's banking service, " << account.getName() << "!\n";
         }
         else if(input == "1" && account.getAccountExists() && !account.getLoggedIn()){
@@ -195,7 +195,8 @@ int main(){
                 else if(input == "5"){
                     account.setName("John Pork");
                     account.setAccountExists(false);
-                    std::ofstream acc("Account.txt", std::ofstream::trunc);
+                    account.setLoggedIn(false); 
+                    std::ofstream acc(account.getAccountPath(), std::ofstream::trunc);
                     acc.close();
                     std::cout << "\nAccount deleted successfully!\n";
                     break;
@@ -211,7 +212,7 @@ int main(){
                     account.generateInterestRate();
                 }
                 else if(input == "9" && account.getDebug()){
-                    std::ofstream logfile("log.txt", std::ofstream::trunc); //horrible, fix later
+                    std::ofstream logfile(account.getLogPath(), std::ofstream::trunc); //horrible, fix later
                     logfile.close();
                 }
             }

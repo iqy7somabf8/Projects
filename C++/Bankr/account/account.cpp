@@ -15,7 +15,6 @@ Account::Account(std::string name, std::string password, dob dateOfBirth, int in
         this->generateInterestRate();
         std::ofstream history(HISTORY_PATH);
         if(!history.is_open()){
-            std::cerr << "Error creating history file!\n";
             logger.log("Error opening history file!", ERROR);
         }
         else {
@@ -29,18 +28,20 @@ Account::Account(std::string name, std::string password, dob dateOfBirth, int in
 
     Account::~Account(){}
 
-std::string Account::getName(){return name;}
-std::string Account::getPassword(){return password;}
-int Account::getDobYear(){return dateOfBirth.year;}
-int Account::getDobMonth(){return dateOfBirth.month;}
-int Account::getDobDay(){return dateOfBirth.day;}
-int Account::getMoney(){return money;}
-bool Account::getAccountExists(){return accountExists;}
-bool Account::getLoggedIn(){return loggedIn;}
-bool Account::getDebug(){return debug;}
-int Account::getYear(){return year;}
-double Account::getInterest(){return interest;}
-time_t Account::getCurrentTime(){return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());}
+std::string Account::getName() const {return name;}
+std::string Account::getPassword() const {return password;}
+int Account::getDobYear() const {return dateOfBirth.year;}
+int Account::getDobMonth() const {return dateOfBirth.month;}
+int Account::getDobDay() const {return dateOfBirth.day;}
+int Account::getMoney() const {return money;}
+bool Account::getAccountExists() const {return accountExists;}
+bool Account::getLoggedIn() const {return loggedIn;}
+bool Account::getDebug() const {return debug;}
+int Account::getYear() const {return year;}
+double Account::getInterest() const {return interest;}
+std::string Account::getAccountPath() const {return ACCOUNT_PATH;}
+std::string Account::getLogPath() const {return logger.getLogPath();}
+time_t Account::getCurrentTime() const {return std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());}
 int Account::getCurrentYear(){
     std::time_t time = std::time(nullptr);
     std::tm* tm = std::localtime(&time);
@@ -64,23 +65,20 @@ void Account::withdraw(int amount){money -= amount; logger.log("Withdraw called"
 void Account::addHistory(std::string input){
     std::ofstream history(HISTORY_PATH, std::ios::app);
     if(!history.is_open()){
-        std::cerr << "Error opening history file!\n";
         logger.log("Error opening history file", ERROR);
         return;
     }
     history << input << "\n";
     history.close();
-    logger.log("History modified", INFO);
+    logger.log("History modified", INFO); 
 }
 
     void Account::deleteHistory(){
         std::ofstream history(HISTORY_PATH, std::ofstream::trunc);
         if(!history.is_open()){
-            std::cerr << "Error opening history file!\n";
             logger.log("Error opening history file", ERROR);
             return;
         }
-        logger.log("History deleted!", INFO);
         history.close();
         logger.log("History deleted!", INFO);
     }
@@ -160,7 +158,6 @@ void Account::addHistory(std::string input){
     void Account::saveConfigToFile(){
         std::ofstream config(CONFIG_PATH);
         if(!config.is_open()){
-            std::cerr << "Error opening config file!\n";
             logger.log("Error opening config file", ERROR);
             return;
         }
@@ -173,7 +170,6 @@ void Account::addHistory(std::string input){
     void Account::loadConfigFromFile(){
         std::ifstream config(CONFIG_PATH);
         if(!config.is_open() || !config.peek()){
-            std::cerr << "Error opening config file!\n";
             logger.log("Error opening config file!", ERROR);
             return;
         }

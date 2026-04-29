@@ -11,7 +11,7 @@ Logger::Logger(){
         std::cerr << "Error creating log file!\n";
     }
     else{
-        logfile << "----- New Session -----\n"; 
+        logfile << "----- New Session -----\n";
         logfile.close();
     }
 }
@@ -64,3 +64,5 @@ void Logger::deleteLog(){
         logfile.close();
     }
 }
+
+std::string Logger::getLogPath() const { return LOG_PATH; }

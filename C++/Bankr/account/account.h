@@ -30,18 +30,20 @@ public:
     Account(std::string name, std::string password, dob dateOfBirth, int initialMoney = 0);
     ~Account();
 
-    std::string getName();
-    std::string getPassword();
-    int getDobYear();
-    int getDobMonth();
-    int getDobDay();
-    int getMoney();
-    bool getAccountExists();
-    bool getLoggedIn();
-    bool getDebug();
-    int getYear();
-    double getInterest();
-    time_t getCurrentTime();
+    std::string getName() const;
+    std::string getPassword() const;
+    int getDobYear() const;
+    int getDobMonth() const;
+    int getDobDay() const;
+    int getMoney() const;
+    bool getAccountExists() const;
+    bool getLoggedIn() const;
+    bool getDebug() const;
+    int getYear() const;
+    double getInterest() const;
+    std::string getAccountPath() const; 
+    std::string getLogPath() const;
+    time_t getCurrentTime() const;
     int getCurrentYear();
 
     void setName(std::string sName);
