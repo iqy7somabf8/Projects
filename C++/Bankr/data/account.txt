@@ -1,8 +1,0 @@
-name=bloo
-password=i am sigmer
-dob_day=14
-dob_month=8
-dob_year=2009
-balance=6885
-interest=1.02943
-year=2026
