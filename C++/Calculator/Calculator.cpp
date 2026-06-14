@@ -31,13 +31,8 @@ class Calculator{
         }
 
         void debugVectorOutput(std::vector<std::string>& token, bool preCleanup){
-            if(debug && preCleanup){
-                std::cout << "Pre Cleanup: ";
-                for(std::string c : token) std::cout << c << ", ";
-                std::cout << "\n";
-            }
-            else if (debug && !preCleanup){
-                std::cout << "Post Cleanup: ";
+            if(debug){
+                std::cout << (preCleanup ? "Pre Cleanup: \n" : "Post Cleanup: \n");
                 for(std::string c : token) std::cout << c << ", ";
                 std::cout << "\n";
             }
@@ -53,6 +48,28 @@ class Calculator{
         }
 
         void clearCin(){std::cin.clear(); std::cin.ignore(INT_MAX, '\n');}
+
+        double sqrt(int number)
+        {
+            if(number == 1 || number == 0) return number;
+
+            int l = 1;
+            int r = number;
+
+            while(l <= r)
+            {
+                
+                int m = l + (r - l) / 2;
+
+                long long square = (long long)m * m;
+
+                if(square > number) r = m - 1;
+                else if(square == number) return m;
+                else l = m + 1;
+            }
+
+            return (double)std::round(r);
+        }
 
         //In-order executed methods
         void Menu(){
@@ -113,10 +130,8 @@ class Calculator{
         double loopProblem(std::vector<std::string>& token){
             for(int i=0;i<token.size()+1;i++){
                     if(token[i] == "^") token = this->calculatePower(token, i);
-                    else if(token[i] == "s") token = this->squareRoot(token, i);   
-            }
-            for(int i=0;i<token.size()+1;i++){
-                    if(token[i] == "/") token = this->divide(token, i);
+                    else if(token[i] == "s") token = this->squareRoot(token, i);
+                    else if(token[i] == "/") token = this->divide(token, i);
                     else if(token[i] == "*") token = this->multiply(token, i);
             }
             return this->addAndSubtract(token);
@@ -137,13 +152,8 @@ class Calculator{
 
         std::vector<std::string> squareRoot(std::vector<std::string>& token, int& index){
             this->debugOutput("Square Root Calculation", -1, -1);
-            double tolerance = 1e-6;
-            double squareNumber = std::stod(token[index+1]);
-            double result = squareNumber;
-
-            while(std::abs(result * result - squareNumber) > tolerance){
-                result = 0.5 * (result + squareNumber / result);
-            }
+            int squareNumber = std::stoi(token[index+1]);
+            double result = this->sqrt(squareNumber);            
             this->debugOutput("Inbetween result: ", -1, result);
             this->debugOutput("Index: ", index, -1);
             return this->cleanup(token, index, result, true);
@@ -155,8 +165,7 @@ class Calculator{
             this->debugOutput("Inbetween result: ", -1, result);
             this->debugOutput("Index: ", index, -1);
             return this->cleanup(token, index, result, false);
-        }
-            
+        }      
 
         std::vector<std::string> multiply(std::vector<std::string>& token, int& index){
             this->debugOutput("Multiplication", -1, -1);
