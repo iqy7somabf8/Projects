@@ -5,15 +5,22 @@
 This Repository is made to feature most of my currently either finished or work-in-progress projects.
 
 ---
+## Cloning the repo
+
+```bash
+git clone https://github.com/iqy7somabf8/Projects <foldername>
+```
+---
 ## Compiling most projects
 
 Compiling most of my current projects is incredibly easy:
 
 ```bash
-g++ filename.cpp -o filename
+g++ <filename.cpp> -o <filename>
 ```
 
 Obviously changing `filename` to the name of the file you are compiling.
+
 
 The only project currently not able to be compiled using the previously shown method is `Bankr`.
 
