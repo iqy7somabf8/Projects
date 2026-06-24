@@ -12,13 +12,15 @@ public:
 	void setDebug();
 	bool getDebug() const;
 
-	double sqrt(int number);
-
 	void Menu();
 
-	bool validateInput(const std::string& input);
+	double sqrt(int number);
 
 	double evaluateInput(const std::string& input);
+
+private:
+
+	bool validateInput(const std::string& input);
 
 	std::vector<std::string> tokenize(const std::string& input);
 
@@ -34,8 +36,11 @@ public:
 
 	double addAndSubtract(std::vector<std::string>& token);
 
-private:
+	std::vector<std::string> evaluateParantheses(std::vector<std::string>& token);
+
+
 	int currentIndex = 0;
 	std::vector<std::string> token {};
 	const std::unordered_set<char> OPERATORS = { '+', '-', '/', '*', '^', 's' };
+	std::vector<std::vector<std::string>> parantheses {};
 };

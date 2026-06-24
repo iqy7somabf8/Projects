@@ -22,6 +22,8 @@ public:
 
 	void clearCin() { std::cin.clear(); std::cin.ignore(INT_MAX, '\n'); }
 
+	std::vector<std::string> cleanupParantheses(std::vector<std::string>& token, double& result, int& start, int& end);
+
 private:
 	bool debug = false;
 };

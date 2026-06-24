@@ -35,3 +35,12 @@ std::vector<std::string> Utils::cleanup(std::vector<std::string>& token, int& in
 	return token;
 }
 
+std::vector<std::string> Utils::cleanupParantheses(std::vector<std::string>& token, double& result, int& start, int& end)
+{
+	token[start - 1] = std::to_string(result);
+	debugVectorOutput(token, true);
+	token.erase(token.begin() + start, token.begin() + end + 1);
+	debugVectorOutput(token, false);
+	return token;
+}
+	

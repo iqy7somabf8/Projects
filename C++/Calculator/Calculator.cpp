@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cctype>
 #include <vector>
+#include <unordered_map>
 
 #include "Utils.h"
 
@@ -48,15 +49,60 @@ void Calculator::Menu() {
 
 bool Calculator::validateInput(const std::string& input)
 {
+	std::unordered_map<char, int> paranthesesCounts = { {'(', 0}, { ')', 0 } };
+
 	if (input.empty()) return false;
 
 	if (OPERATORS.find(input.front()) != OPERATORS.end() && input[0] != 's' || OPERATORS.find(input.back()) != OPERATORS.end()) return false;
 
-	for (int i = 0; i < input.size() - 1; i++) 
+	for (int i = 0; i < input.size(); i++)
 	{
-		if (input[i] == 's' && std::stoi(input.substr(i + 1)) < 1) { std::cout << "Finding the square root of a negative number is impossible.\n"; return false; }
+		if (input[i] == 's' && (isdigit(input[i + 1] && std::stoi(std::to_string(input[i+1])) < 1))) { std::cout << "Finding the square root of a negative number is impossible.\n"; return false; }
+
+		if (input[i] == '(' || input[i] == ')') paranthesesCounts[input[i]]++;
 	}
+
+	utils.debugOutput("Parantheses counts: ['(: " + std::to_string(paranthesesCounts['(']) + "'] ['): " + std::to_string(paranthesesCounts[')']) + "']", -1, -1);
+	if (paranthesesCounts['('] != paranthesesCounts[')']) { std::cout << "Mismatched parantheses\n"; return false; }
+
 	return true;
+}
+
+std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string>& token)
+{
+
+	utils.debugOutput("Parantheses Evaluation Invoked", -1, -1);
+
+	std::vector<std::string> parantheseToken = {};
+	int offset = 0;
+
+	for (int i = 0; i < token.size(); ++i)
+	{
+
+		if (i > token.size() - offset) break;
+
+		if (token[i] == "(")
+		{
+			int start = i + 1;
+			int end = 0;
+
+			for (int j = start; j < token.size(); j++)
+			{
+				parantheseToken.push_back(token[j]);
+
+				if (token[j] == ")") { end = j; break; }
+			}
+			parantheseToken.pop_back();
+
+			double result = loopProblem(parantheseToken);
+			token = utils.cleanupParantheses(token, result, start, end);
+			offset += end - start + 1;
+		}
+	}
+	
+	utils.debugOutput("Parantheses Evaluation Finished", -1, -1);
+
+	return token;
 }
 
 double Calculator::evaluateInput(const std::string& input) 
@@ -64,6 +110,7 @@ double Calculator::evaluateInput(const std::string& input)
 	if (validateInput(input))
 	{
 		std::vector<std::string> token = tokenize(input);
+		token = this->evaluateParantheses(token);
 		return loopProblem(token);
 	}
 
@@ -82,8 +129,7 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 	{
 		if (isdigit(c) || c == '.') currentNum += c;
 
-
-		else if (OPERATORS.find(c) != OPERATORS.end())
+		else if (OPERATORS.find(c) != OPERATORS.end() || (c == '(' || c == ')'))
 		{
 			if (!currentNum.empty())
 			{
@@ -94,15 +140,15 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 		}
 	}
 
-	//Double check
 	if (!currentNum.empty()) token.push_back(currentNum);
+
 	return token;
 }
 
 
 double Calculator::loopProblem(std::vector<std::string>& token) 
 {
-	for (int i = 0; i < token.size() + 1; i++)
+	for (int i = 0; i < token.size(); i++)
 	{
 		if (token[i] == "^") token = calculatePower(token, i);
 		else if (token[i] == "s") token = squareRoot(token, i);
@@ -162,7 +208,7 @@ double Calculator::addAndSubtract(std::vector<std::string>& token)
 	if (token.size() > 1)
 	{
 		result = std::stod(token[0]);
-		for (std::size_t i = 1; i < token.size(); i += 2)
+		for (int i = 1; i < token.size(); i += 2)
 		{
 			char op = token[i][0];
 			double num = std::stod(token[i + 1]);
