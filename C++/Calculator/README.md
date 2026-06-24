@@ -24,11 +24,7 @@ Result: 1088
 
 ## Compiling
 
-This project is the same as `BetterList`:
-
-```bash
-g++ Calculator.cpp -o Calculator
-```
+*TODO: Add information for project compilation.*
 
 ---
 ## Patch Notes
