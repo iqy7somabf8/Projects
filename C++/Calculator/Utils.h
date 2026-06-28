@@ -8,15 +8,27 @@
 class Utils {
 public:
 
+	enum VECTOR_OUTPUT_STATES
+	{
+		PRE_CLEANUP,
+		POST_CLEANUP
+	};
+
 	Utils();
 	~Utils();
 
 	inline bool getDebug() const { return debug; }
 	void setDebug();
 
-	void debugOutput(std::string msg, int index, double result);
+	void debugOutput(std::string msg);
 
-	void debugVectorOutput(std::vector<std::string>& token, bool preCleanup);
+	void debugOutput(std::string msg, int index);
+	
+	void debugOutput(std::string msg, double result);
+
+	void debugVectorOutput(std::vector<std::string>& token);
+
+	void debugVectorOutput(std::vector<std::string>& token, VECTOR_OUTPUT_STATES state);
 
 	std::vector<std::string> cleanup(std::vector<std::string>& token, int& index, double& result, bool isSquareRoot);
 

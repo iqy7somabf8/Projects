@@ -4,23 +4,43 @@ Utils::Utils() = default;
 
 Utils::~Utils() = default;
 
-void Utils::setDebug()
+void Utils::setDebug() { debug = (debug ? false : true); }
+
+void Utils::debugOutput(std::string msg) { if (debug) std::cout << msg << "\n"; }
+
+void Utils::debugOutput(std::string msg, int index)
 {
-	debug = (debug ? false : true);
+	if (debug) std::cout << msg << index << "\n";
 }
 
-void Utils::debugOutput(std::string msg, int index, double result)
+void Utils::debugOutput(std::string msg, double result)
 {
-	if (debug && index != -1) std::cout << msg << index << "\n";
-	else if (debug && result != -1)std::cout << msg << result << "\n";
-	else if (debug) std::cout << msg << "\n";
+	if (debug) std::cout << msg << result << "\n";
 }
 
-void Utils::debugVectorOutput(std::vector<std::string>& token, bool preCleanup)
+void Utils::debugVectorOutput(std::vector<std::string>& token)
 {
 	if (debug) {
-		std::cout << (preCleanup ? "Pre Cleanup: \n" : "Post Cleanup: \n");
-		for (std::string c : token) std::cout << c << ", ";
+		for (const auto& c : token) std::cout << c << ", ";
+		std::cout << "\n";
+	}
+}
+
+void Utils::debugVectorOutput(std::vector<std::string>& token, VECTOR_OUTPUT_STATES state)
+{
+	if (debug) {
+		switch (state) 
+		{
+		case PRE_CLEANUP:
+			std::cout << "Pre cleanup:\n";
+			break;
+		case POST_CLEANUP:
+			std::cout << "Post cleanup:\n";
+			break;
+		default:
+			std::cout << "What the fuck did you put in for this to display???\n";
+		}
+		for (const auto& c : token) std::cout << c << ", ";
 		std::cout << "\n";
 	}
 }
@@ -28,19 +48,19 @@ void Utils::debugVectorOutput(std::vector<std::string>& token, bool preCleanup)
 std::vector<std::string> Utils::cleanup(std::vector<std::string>& token, int& index, double& result, bool isSquareRoot)
 {
 	token[index - (isSquareRoot ? 0 : 1)] = std::to_string(result);
-	debugVectorOutput(token, true);
+	debugVectorOutput(token, PRE_CLEANUP);
 	token.erase(token.begin() + index + (isSquareRoot ? 1 : 0), token.begin() + index + 2);
 	--index;
-	debugVectorOutput(token, false);
+	debugVectorOutput(token, POST_CLEANUP);
 	return token;
 }
 
 std::vector<std::string> Utils::cleanupParantheses(std::vector<std::string>& token, double& result, int& start, int& end)
 {
 	token[start - 1] = std::to_string(result);
-	debugVectorOutput(token, true);
+	debugVectorOutput(token, PRE_CLEANUP);
 	token.erase(token.begin() + start, token.begin() + end + 1);
-	debugVectorOutput(token, false);
+	debugVectorOutput(token, POST_CLEANUP);
 	return token;
 }
 	
