@@ -59,13 +59,14 @@ bool Calculator::validateInput(const std::string& input)
 
 	if (input.empty()) return false;
 
+	// Check if there is an operator at the front or the back of the problem
 	if (OPERATORS.find(input.front()) != OPERATORS.end() && input[0] != 's' || OPERATORS.find(input.back()) != OPERATORS.end()) return false;
 
 	for (int i = 0; i < input.size(); i++)
 	{
-		if (input[i] == 's' && (isdigit(input[i + 1] && std::stoi(std::to_string(input[i+1])) < 1))) { std::cout << "Finding the square root of a negative number is impossible.\n"; return false; }
-
 		if (input[i] == '(' || input[i] == ')') paranthesesCounts[input[i]]++;
+
+		if (input[i] == 's' && (input[i + 1] == '-' || input[i + 1] == '0')) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
 	}
 
 	utils.debugOutput("Parantheses counts: ['(: " + std::to_string(paranthesesCounts['(']) + "'] ['): " + std::to_string(paranthesesCounts[')']) + "']"); // so cute of me to immitate the readability c-library code
@@ -74,49 +75,13 @@ bool Calculator::validateInput(const std::string& input)
 	return true;
 }
 
-std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string>& token)
+bool Calculator::validateInput(const std::vector<std::string>& input)
 {
-
-	utils.debugOutput("Parantheses Evaluation Invoked");
-
-	std::vector<std::string> parantheseToken = {};
-	int offset = 0;
-
-	for (int i = 0; i < token.size(); ++i)
+	for (int i = 0; i < input.size(); i++)
 	{
-
-		if (i > token.size() - offset) break;
-
-		if (token[i] == "(")
-		{
-			try { // Check if theres a number before the paranthese. If so, adds a '*' operator.
-				if (std::stoi(token[i - 1]) + 1) token.insert(token.begin() + i, "*");
-				utils.debugOutput("Added '*' operator at index: ", i);
-				i++;
-			} catch (...) {
-				utils.debugOutput("Exception caught"); // TODO: make this more clear on what it means.
-			}
-
-			int start = i + 1;
-			int end = 0;
-
-			for (int j = start; j < token.size(); j++)
-			{
-				parantheseToken.push_back(token[j]);
-
-				if (token[j] == ")") { end = j; break; }
-			}
-			parantheseToken.pop_back();
-
-			double result = loopProblem(parantheseToken);
-			token = utils.cleanupParantheses(token, result, start, end);
-			offset += end - start + 1;
-		}
+		if (input[i] == "s" && std::stoi(input[i+1]) < 1) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
 	}
-	
-	utils.debugOutput("Parantheses Evaluation Finished");
-
-	return token;
+	return true;
 }
 
 double Calculator::evaluateInput(const std::string& input) 
@@ -125,12 +90,18 @@ double Calculator::evaluateInput(const std::string& input)
 	{
 		std::vector<std::string> token = tokenize(input);
 		token = this->evaluateParantheses(token);
-		return loopProblem(token);
-	}
 
+		// Second check. For now just to make sure that we aren't trying to compute the square root of a negative / 0 number
+		if(validateInput(token)) return loopProblem(token);
+
+		std::cout << "Encountered error whilst validating input. Try again.\n";
+		utils.clearCin();
+		return -1.404;
+
+	}
 	std::cout << "Encountered error whilst validating input. Try again.\n";
 	utils.clearCin();
-	return false;
+	return -1.404;
 }
 
 //tokenize the input all into one vector
@@ -155,6 +126,74 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 	}
 
 	if (!currentNum.empty()) token.push_back(currentNum);
+
+	return token;
+}
+
+std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string>& token)
+{
+
+	utils.debugOutput("Parantheses Evaluation Invoked");
+
+	std::vector<std::string> parantheseToken = {};
+	int offset = 0;
+
+	for (int i = 0; i < token.size(); ++i)
+	{
+
+		if (i > token.size() - offset) break;
+
+		if (token[i] == "(")
+		{
+			try { // Check if theres a number before the paranthese. If so, adds a '*' operator.
+
+				if (i == 0) utils.debugOutput("Paranthese at index 0");
+
+				else if (std::stoi(token[i - 1]) + 1)
+				{
+					token.insert(token.begin() + i, "*");
+					utils.debugOutput("Added '*' operator at index: ", i);
+					utils.debugVectorOutput(token);
+					i++;
+				}
+
+			}
+			catch (...) { utils.debugOutput("Exception caught"); }// TODO: make this more clear on what it means.
+
+			int start = i + 1;
+			int end = 0;
+
+			for (int j = start; j < token.size(); j++)
+			{
+				parantheseToken.push_back(token[j]);
+
+				if (token[j] == ")")
+				{
+					end = j;
+					try { // Check if theres a number after the paranthese. If so, adds a '*' operator.
+
+						// bs check. The try statement shouldn't still require me to make sure j isn't the index of the last element :/
+						if (j != token.size() - 1 && std::stoi(token[j + 1]) + 1)
+						{
+							token.insert(token.begin() + j + 1, "*");
+							utils.debugOutput("Added '*' operator at index: ", j);
+							utils.debugVectorOutput(token);
+						}
+
+					}
+					catch (...) { utils.debugOutput("Exception caught"); }// TODO: make this more clear on what it means.
+					break;
+				}
+			}
+			parantheseToken.pop_back();
+
+			double result = loopProblem(parantheseToken);
+			token = utils.cleanupParantheses(token, result, start, end);
+			offset += end - start + 1;
+		}
+	}
+
+	utils.debugOutput("Parantheses Evaluation Finished");
 
 	return token;
 }
@@ -212,10 +251,10 @@ std::vector<std::string> Calculator::multiply(std::vector<std::string>& token, i
 
 double Calculator::addAndSubtract(std::vector<std::string>& token) 
 {
-	utils.debugOutput("Addition and Subtraction");
 	double result = std::stod(token[0]);
 	if (token.size() > 1)
 	{
+		utils.debugOutput("Addition and Subtraction");
 		result = std::stod(token[0]);
 		for (int i = 1; i < token.size(); i += 2)
 		{

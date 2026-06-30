@@ -22,6 +22,8 @@ private:
 
 	bool validateInput(const std::string& input);
 
+	bool validateInput(const std::vector<std::string>& input);
+
 	std::vector<std::string> tokenize(const std::string& input);
 
 	double loopProblem(std::vector<std::string>& token);
