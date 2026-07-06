@@ -55,22 +55,26 @@ void Calculator::Menu() {
 
 bool Calculator::validateInput(const std::string& input)
 {
-	std::unordered_map<char, int> paranthesesCounts = { {'(', 0}, { ')', 0 } };
-
 	if (input.empty()) return false;
 
 	// Check if there is an operator at the front or the back of the problem
-	if (OPERATORS.find(input.front()) != OPERATORS.end() && input[0] != 's' || OPERATORS.find(input.back()) != OPERATORS.end()) return false;
+	if (OPERATORS_BASIC.find(input.front()) != OPERATORS_BASIC.end() && input[0] != 's' || OPERATORS_BASIC.find(input.back()) != OPERATORS_BASIC.end()) return false;
 
 	for (int i = 0; i < input.size(); i++)
 	{
-		if (input[i] == '(' || input[i] == ')') paranthesesCounts[input[i]]++;
+		if (input[i] == '(' || input[i] == ')') parantheseCounts[input[i]]++;
 
 		if (input[i] == 's' && (input[i + 1] == '-' || input[i + 1] == '0')) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
 	}
 
-	utils.debugOutput("Parantheses counts: ['(: " + std::to_string(paranthesesCounts['(']) + "'] ['): " + std::to_string(paranthesesCounts[')']) + "']"); // so cute of me to immitate the readability c-library code
-	if (paranthesesCounts['('] != paranthesesCounts[')']) { std::cout << "Mismatched parantheses\n"; return false; }
+	utils.debugOutput("Parantheses counts: ['(: " + std::to_string(parantheseCounts['(']) + "'] ['): " + std::to_string(parantheseCounts[')']) + "']"); // so cute of me to immitate the readability of c-library code
+	if (parantheseCounts['('] != parantheseCounts[')'])
+	{ 
+		std::cout << "Mismatched parantheses\n"; 
+		parantheseCounts['('] = 0; 
+		parantheseCounts[')'] = 0; 
+		return false; 
+	}
 
 	return true;
 }
@@ -107,25 +111,46 @@ double Calculator::evaluateInput(const std::string& input)
 //tokenize the input all into one vector
 std::vector<std::string> Calculator::tokenize(const std::string& input) 
 {
+
+	utils.debugOutput("Tokenization Invoked");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
+
 	std::vector<std::string> token;
 	std::string currentNum = "";
+	std::string currentOp = "";
 
-	for (char c : input)
+	for (int i=0; i < input.size(); i++)
 	{
-		if (isdigit(c) || c == '.') currentNum += c;
+		char c = input[i];
 
-		else if (OPERATORS.find(c) != OPERATORS.end() || (c == '(' || c == ')'))
+		if (isdigit(c) || c == '.') currentNum += c;
+		else if (isalpha(c)) currentOp += c;
+
+		else if (OPERATORS_BASIC.find(c) != OPERATORS_BASIC.end() || (c == '(' || c == ')'))
 		{
 			if (!currentNum.empty())
 			{
 				token.push_back(currentNum);
 				currentNum = "";
 			}
+
+			if (!currentOp.empty())
+			{
+				token.push_back(currentOp);
+				currentOp = "";
+			}
+
 			token.push_back(std::string(1, c));
 		}
 	}
 
 	if (!currentNum.empty()) token.push_back(currentNum);
+
+	utils.debugOutput("Tokens:");
+	utils.debugVectorOutput(token);
+
+	utils.changeIndentation(Utils::DECREASE_INDENT);
+	utils.debugOutput("Tokenization Finished");
 
 	return token;
 }
@@ -134,16 +159,14 @@ std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string
 {
 
 	utils.debugOutput("Parantheses Evaluation Invoked");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
 
+	int seenParantheses = 0;
 	std::vector<std::string> parantheseToken = {};
-	int offset = 0;
 
 	for (int i = 0; i < token.size(); ++i)
 	{
-
-		if (i > token.size() - offset) break;
-
-		if (token[i] == "(")
+		if (token[i] == "(" && ++seenParantheses == parantheseCounts['('])
 		{
 			try { // Check if theres a number before the paranthese. If so, adds a '*' operator.
 
@@ -185,14 +208,21 @@ std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string
 					break;
 				}
 			}
-			parantheseToken.pop_back();
 
+			parantheseToken.pop_back();
 			double result = loopProblem(parantheseToken);
+			parantheseToken.clear();
+
 			token = utils.cleanupParantheses(token, result, start, end);
-			offset += end - start + 1;
+
+			i = -1; // also incredibly hacky way to restart the loop but nobody really gaf
+			parantheseCounts['(']--;
+			parantheseCounts[')']--;
+			seenParantheses = 0; // very hacky but idk
 		}
 	}
 
+	utils.changeIndentation(Utils::DECREASE_INDENT);
 	utils.debugOutput("Parantheses Evaluation Finished");
 
 	return token;
@@ -200,11 +230,18 @@ std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string
 
 double Calculator::loopProblem(std::vector<std::string>& token) 
 {
+
 	for (int i = 0; i < token.size(); i++)
 	{
 		if (token[i] == "^") token = calculatePower(token, i);
 		else if (token[i] == "s") token = squareRoot(token, i);
-		else if (token[i] == "/") token = divide(token, i);
+		else if (token[i] == "sin") token = sin(token, i);
+		else if (token[i] == "cos") token = cos(token, i);
+	}
+	// Literally no idea why my dumbass self didn't realise this would absolutely not work in a single loop smh
+	for (int i = 0; i < token.size(); i++)
+	{
+		if (token[i] == "/") token = divide(token, i);
 		else if (token[i] == "*") token = multiply(token, i);
 	}
 	return addAndSubtract(token);
@@ -213,9 +250,10 @@ double Calculator::loopProblem(std::vector<std::string>& token)
 std::vector<std::string> Calculator::calculatePower(std::vector<std::string>& token, int& index) 
 {
 	utils.debugOutput("Power of Calculation");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
 	double result = 1;
 	double base = std::stod(token[index - 1]);
-	double exponent = std::stod(token[index + 1]);
+	int exponent = std::stoi(token[index + 1]);
 	for (int i = 0; i < exponent; i++) result *= base;
 	utils.debugOutput("Power inbetween result: ", result);
 	return utils.cleanup(token, index, result, false);
@@ -224,8 +262,31 @@ std::vector<std::string> Calculator::calculatePower(std::vector<std::string>& to
 std::vector<std::string> Calculator::squareRoot(std::vector<std::string>& token, int& index)
 {
 	utils.debugOutput("Square Root Calculation");
-	int squareNumber = std::stoi(token[index + 1]);
+	utils.changeIndentation(Utils::INCREASE_INDENT);
+	double squareNumber = std::stod(token[index + 1]);
 	double result = sqrt(squareNumber);
+	utils.debugOutput("Inbetween result: ", result);
+	utils.debugOutput("Index: ", index);
+	return utils.cleanup(token, index, result, true);
+}
+
+std::vector<std::string> Calculator::sin(std::vector<std::string>& token, int& index)
+{
+	utils.debugOutput("Sin() Calculation");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
+	double degree = std::stod(token[index + 1]);
+	double result = std::sin(degree);
+	utils.debugOutput("Inbetween result: ", result);
+	utils.debugOutput("Index: ", index);
+	return utils.cleanup(token, index, result, true);
+}
+
+std::vector<std::string> Calculator::cos(std::vector<std::string>& token, int& index)
+{
+	utils.debugOutput("Cos() Calculation");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
+	double degree = std::stod(token[index + 1]);
+	double result = std::cos(degree);
 	utils.debugOutput("Inbetween result: ", result);
 	utils.debugOutput("Index: ", index);
 	return utils.cleanup(token, index, result, true);
@@ -234,6 +295,7 @@ std::vector<std::string> Calculator::squareRoot(std::vector<std::string>& token,
 std::vector<std::string> Calculator::divide(std::vector<std::string>& token, int& index)
 {
 	utils.debugOutput("Division");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
 	double result = std::stod(token[index - 1]) / std::stod(token[index + 1]);
 	utils.debugOutput("Inbetween result: ", result);
 	utils.debugOutput("Index: ", index);
@@ -243,6 +305,7 @@ std::vector<std::string> Calculator::divide(std::vector<std::string>& token, int
 std::vector<std::string> Calculator::multiply(std::vector<std::string>& token, int& index) 
 {
 	utils.debugOutput("Multiplication");
+	utils.changeIndentation(Utils::INCREASE_INDENT);
 	double result = std::stod(token[index - 1]) * std::stod(token[index + 1]);
 	utils.debugOutput("Inbetween result: ", result);
 	utils.debugOutput("Index: ", index);

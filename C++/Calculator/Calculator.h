@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <unordered_map>
 
 class Calculator {
 public:
@@ -32,6 +33,10 @@ private:
 
 	std::vector<std::string> squareRoot(std::vector<std::string>& token, int& index);
 
+	std::vector<std::string> sin(std::vector<std::string>& token, int& index);
+
+	std::vector<std::string> cos(std::vector<std::string>& token, int& index);
+
 	std::vector<std::string> divide(std::vector<std::string>& token, int& index);
 
 	std::vector<std::string> multiply(std::vector<std::string>& token, int& index);
@@ -43,6 +48,7 @@ private:
 
 	int currentIndex = 0;
 	std::vector<std::string> token {};
-	const std::unordered_set<char> OPERATORS = { '+', '-', '/', '*', '^', 's' };
-	std::vector<std::vector<std::string>> parantheses {};
+	const std::unordered_set<char> OPERATORS_BASIC = { '+', '-', '/', '*', '^'};
+	const std::unordered_set<std::string> OPERATORS_ADVANCED = { "s", "sin", "cos"}; // Unusued for now
+	std::unordered_map<char, int> parantheseCounts{ {'(', 0}, {')', 0} };
 };

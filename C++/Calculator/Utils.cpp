@@ -6,21 +6,50 @@ Utils::~Utils() = default;
 
 void Utils::setDebug() { debug = (debug ? false : true); }
 
-void Utils::debugOutput(std::string msg) { if (debug) std::cout << msg << "\n"; }
-
 void Utils::debugOutput(std::string msg, int index)
 {
-	if (debug) std::cout << msg << index << "\n";
+	if (debug)
+	{
+		for (int i = 0; i < indent; ++i) std::cout << "\t";
+		std::cout << msg << index << "\n";
+	}
 }
 
 void Utils::debugOutput(std::string msg, double result)
 {
-	if (debug) std::cout << msg << result << "\n";
+	if (debug)
+	{
+		for (int i = 0; i < indent; ++i) std::cout << "\t";
+		std::cout << msg << result << "\n";
+	}
+}
+
+void Utils::debugOutput(std::string msg)
+{
+	if (debug)
+	{
+		for (int i = 0; i < indent; ++i) std::cout << "\t";
+		std::cout << msg << "\n";
+	}
+}
+
+void Utils::changeIndentation(DEBUG_INDENTATION INDENT)
+{
+	switch (INDENT)
+	{
+	case INCREASE_INDENT:
+		++indent;
+		break;
+	case DECREASE_INDENT:
+		--indent;
+		break;
+	}
 }
 
 void Utils::debugVectorOutput(std::vector<std::string>& token)
 {
 	if (debug) {
+		for (int i = 0; i < indent; ++i) std::cout << "\t";
 		for (const auto& c : token) std::cout << c << ", ";
 		std::cout << "\n";
 	}
@@ -29,7 +58,8 @@ void Utils::debugVectorOutput(std::vector<std::string>& token)
 void Utils::debugVectorOutput(std::vector<std::string>& token, VECTOR_OUTPUT_STATES state)
 {
 	if (debug) {
-		switch (state) 
+		for (int i = 0; i < indent; ++i) std::cout << "\t";
+		switch (state)
 		{
 		case PRE_CLEANUP:
 			std::cout << "Pre cleanup:\n";
@@ -40,6 +70,7 @@ void Utils::debugVectorOutput(std::vector<std::string>& token, VECTOR_OUTPUT_STA
 		default:
 			std::cout << "What the fuck did you put in for this to display???\n";
 		}
+		for (int i = 0; i < indent; ++i) std::cout << "\t";
 		for (const auto& c : token) std::cout << c << ", ";
 		std::cout << "\n";
 	}
@@ -52,6 +83,9 @@ std::vector<std::string> Utils::cleanup(std::vector<std::string>& token, int& in
 	token.erase(token.begin() + index + (isSquareRoot ? 1 : 0), token.begin() + index + 2);
 	--index;
 	debugVectorOutput(token, POST_CLEANUP);
+
+	this->changeIndentation(Utils::DECREASE_INDENT);
+
 	return token;
 }
 

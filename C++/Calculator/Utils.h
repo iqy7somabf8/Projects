@@ -14,6 +14,12 @@ public:
 		POST_CLEANUP
 	};
 
+	enum DEBUG_INDENTATION
+	{
+		INCREASE_INDENT,
+		DECREASE_INDENT
+	};
+
 	Utils();
 	~Utils();
 
@@ -21,6 +27,8 @@ public:
 	void setDebug();
 
 	void debugOutput(std::string msg);
+
+	void changeIndentation(DEBUG_INDENTATION INDENT);
 
 	void debugOutput(std::string msg, int index);
 	
@@ -38,4 +46,6 @@ public:
 
 private:
 	bool debug = false;
+
+	int indent = 0;
 };
