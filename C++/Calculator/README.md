@@ -13,7 +13,12 @@ An app to calculate just about anything you need. Has semi-advanced functionalit
 - `^` is for power of calculation.
 - `s` is for square root calculation
 - `()` is used to wrap problems that should be evaluated first.
-   
+- `sin` is for sine calculation (duh)
+- `cos` is for cosine calculation (duh)
+
+- `tip`: use `()` when dealing with `s, sin, and cos`.
+- `tip`: the program will automatically add a `*` operator between `numbers` and `parantheses`.
+
 **sample input:**
 ```
 213*5+23 (Also works with spaces)
