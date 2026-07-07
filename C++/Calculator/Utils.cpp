@@ -11,7 +11,7 @@ void Utils::debugOutput(std::string msg, int index)
 	if (debug)
 	{
 		for (int i = 0; i < indent; ++i) std::cout << "\t";
-		std::cout << msg << index << "\n";
+		std::cout << msg << index << "\n\n";
 	}
 }
 
@@ -20,7 +20,7 @@ void Utils::debugOutput(std::string msg, double result)
 	if (debug)
 	{
 		for (int i = 0; i < indent; ++i) std::cout << "\t";
-		std::cout << msg << result << "\n";
+		std::cout << msg << result << "\n\n";
 	}
 }
 
@@ -29,7 +29,7 @@ void Utils::debugOutput(std::string msg)
 	if (debug)
 	{
 		for (int i = 0; i < indent; ++i) std::cout << "\t";
-		std::cout << msg << "\n";
+		std::cout << msg << "\n\n";
 	}
 }
 
@@ -51,7 +51,7 @@ void Utils::debugVectorOutput(std::vector<std::string>& token)
 	if (debug) {
 		for (int i = 0; i < indent; ++i) std::cout << "\t";
 		for (const auto& c : token) std::cout << c << ", ";
-		std::cout << "\n";
+		std::cout << "\n\n";
 	}
 }
 
@@ -72,7 +72,7 @@ void Utils::debugVectorOutput(std::vector<std::string>& token, VECTOR_OUTPUT_STA
 		}
 		for (int i = 0; i < indent; ++i) std::cout << "\t";
 		for (const auto& c : token) std::cout << c << ", ";
-		std::cout << "\n";
+		std::cout << "\n\n";
 	}
 }
 

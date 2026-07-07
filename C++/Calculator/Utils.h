@@ -46,6 +46,5 @@ public:
 
 private:
 	bool debug = false;
-
 	int indent = 0;
 };

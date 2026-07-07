@@ -45,8 +45,7 @@ private:
 
 
 	int currentIndex = 0;
-	std::vector<std::string> token {};
 	const std::unordered_set<char> OPERATORS_BASIC = { '+', '-', '/', '*', '^'};
-	const std::unordered_set<std::string> OPERATORS_ADVANCED = { "s", "sin", "cos"}; // Unusued for now
+	const std::unordered_set<std::string> OPERATORS_ADVANCED = { "s", "sin", "cos"}; // finally used yippie
 	std::unordered_map<char, int> parantheseCounts{ {'(', 0}, {')', 0} };
 };

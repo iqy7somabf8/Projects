@@ -15,13 +15,32 @@ Calculator::~Calculator() = default;
 void Calculator::setDebug() { utils.setDebug(); }
 bool Calculator::getDebug() const { return utils.getDebug(); }
 
-//In-order executed methods // not anymore tho its kinda fucked
-void Calculator::Menu() {
+//In-order executed methods
+void Calculator::Menu() 
+{
 	std::cout << "Calculator\n"
-	<< "|1. Help\n"
-	<< "|2. Debug >> currently " << (utils.getDebug() ? "Enabled\n" : "Disabled\n")
+	<< "|h. Help\n"
+	<< "|d. Debug >> currently " << (utils.getDebug() ? "Enabled\n" : "Disabled\n")
 	<< "|To exit type 'end'\n"
 	<< ">>";
+}
+
+double Calculator::evaluateInput(const std::string& input) 
+{
+	if (validateInput(input))
+	{
+		std::vector<std::string> token = tokenize(input);
+		token = evaluateParantheses(token);
+
+		if (token.empty()); 
+		// very spaghetti around here. if token is empty doesnt even get to second validation. if validation fails it just print the botton error message
+
+		// Second check. For now just to make sure that we aren't trying to compute the square root of a negative number
+		else if(validateInput(token)) return loopProblem(token);
+	}
+	std::cout << "Encountered error whilst validating input. Try again.\n";
+	utils.clearCin();
+	return -1.404;
 }
 
 bool Calculator::validateInput(const std::string& input)
@@ -35,54 +54,24 @@ bool Calculator::validateInput(const std::string& input)
 	{
 		if (input[i] == '(' || input[i] == ')') parantheseCounts[input[i]]++;
 
-		if (input[i] == 's' && (input[i + 1] == '-' || input[i + 1] == '0')) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
+		if (input[i] == 's' && input[i + 1] == '-') { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
 	}
 
 	utils.debugOutput("Parantheses counts: ['(: " + std::to_string(parantheseCounts['(']) + "'] ['): " + std::to_string(parantheseCounts[')']) + "']"); // so cute of me to immitate the readability of c-library code
 	if (parantheseCounts['('] != parantheseCounts[')'])
-	{ 
-		std::cout << "Mismatched parantheses\n"; 
-		parantheseCounts['('] = 0; 
-		parantheseCounts[')'] = 0; 
-		return false; 
+	{
+		std::cout << "Mismatched parantheses\n";
+		parantheseCounts['('] = 0;
+		parantheseCounts[')'] = 0;
+		return false;
 	}
 
 	return true;
-}
-
-bool Calculator::validateInput(const std::vector<std::string>& input)
-{
-	for (int i = 0; i < input.size(); i++)
-	{
-		if (input[i] == "s" && std::stoi(input[i+1]) < 1) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
-	}
-	return true;
-}
-
-double Calculator::evaluateInput(const std::string& input) 
-{
-	if (validateInput(input))
-	{
-		std::vector<std::string> token = tokenize(input);
-		token = this->evaluateParantheses(token);
-
-		// Second check. For now just to make sure that we aren't trying to compute the square root of a negative / 0 number
-		if(validateInput(token)) return loopProblem(token);
-
-		std::cout << "Encountered error whilst validating input. Try again.\n";
-		utils.clearCin();
-		return -1.404;
-
-	}
-	std::cout << "Encountered error whilst validating input. Try again.\n";
-	utils.clearCin();
-	return -1.404;
 }
 
 //tokenize the input all into one vector
 std::vector<std::string> Calculator::tokenize(const std::string& input) 
 {
-
 	utils.debugOutput("Tokenization Invoked");
 	utils.changeIndentation(Utils::INCREASE_INDENT);
 
@@ -90,10 +79,8 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 	std::string currentNum = "";
 	std::string currentOp = "";
 
-	for (int i=0; i < input.size(); i++)
+	for (const auto& c : input)
 	{
-		char c = input[i];
-
 		if (isdigit(c) || c == '.') currentNum += c;
 		else if (isalpha(c)) currentOp += c;
 
@@ -105,7 +92,14 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 				currentNum = "";
 			}
 
-			if (!currentOp.empty())
+			if (!currentOp.empty() && OPERATORS_ADVANCED.find(currentOp) == OPERATORS_ADVANCED.end())
+			{
+				
+				std::cout << "Invalid Operator found\n";
+				utils.clearCin();
+				return {};
+			}
+			else if(!currentOp.empty())
 			{
 				token.push_back(currentOp);
 				currentOp = "";
@@ -116,6 +110,13 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 	}
 
 	if (!currentNum.empty()) token.push_back(currentNum);
+	if (!currentOp.empty() && OPERATORS_ADVANCED.find(currentOp) == OPERATORS_ADVANCED.end())
+	{
+		std::cout << "Invalid Operator found\n";
+		utils.clearCin();
+		return {};
+	}
+	else if (!currentOp.empty()) token.push_back(currentOp);
 
 	utils.debugOutput("Tokens:");
 	utils.debugVectorOutput(token);
@@ -197,6 +198,15 @@ std::vector<std::string> Calculator::evaluateParantheses(std::vector<std::string
 	utils.debugOutput("Parantheses Evaluation Finished");
 
 	return token;
+}
+
+bool Calculator::validateInput(const std::vector<std::string>& input)
+{
+	for (int i = 0; i < input.size(); i++)
+	{
+		if (input[i] == "s" && std::stoi(input[i + 1]) < 0) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
+	}
+	return true;
 }
 
 double Calculator::loopProblem(std::vector<std::string>& token) 

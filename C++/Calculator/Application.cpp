@@ -11,7 +11,7 @@ int main() {
         calc.Menu();
         std::getline(std::cin, input);
 
-        if (input == "1") 
+        if (input == "h" || input == "H")
         {
             std::cout << "Help:\n"
                       << "This calculator supports the following operations: +, -, *, /, ^ (power of), s (square root)\n"
@@ -21,7 +21,7 @@ int main() {
             continue;
         }
 
-        if (input == "2") { calc.setDebug(); std::cout << "Debug has been " << (calc.getDebug() ? "Enabled\n" : "Disabled\n"); continue; }
+        if (input == "d" || input == "D") { calc.setDebug(); std::cout << "Debug has been " << (calc.getDebug() ? "Enabled\n" : "Disabled\n"); continue; }
 
         if (input == "end" || input == "End" || input == "END") { std::cout << "Stopping...\n"; break; }
 
