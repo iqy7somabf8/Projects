@@ -4,6 +4,7 @@
 #include <cctype>
 #include <vector>
 #include <unordered_map>
+#include <cmath>
 
 #include "Utils.h"
 
@@ -22,7 +23,7 @@ void Calculator::Menu()
 	<< "|h. Help\n"
 	<< "|d. Debug >> currently " << (utils.getDebug() ? "Enabled\n" : "Disabled\n")
 	<< "|To exit type 'end'\n"
-	<< ">>";
+	<< ">> ";
 }
 
 double Calculator::evaluateInput(const std::string& input) 
@@ -54,7 +55,9 @@ bool Calculator::validateInput(const std::string& input)
 	{
 		if (input[i] == '(' || input[i] == ')') parantheseCounts[input[i]]++;
 
-		if (input[i] == 's' && input[i + 1] == '-') { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
+		if (input[i] == 's' && input[i + 1] == '-') { std::cout << "Finding the square root of a negative number is impossible\n"; return false; }
+
+		if ((i > 0 && i < input.size() - 1) && ((OPERATORS_BASIC.find(input[i]) != OPERATORS_BASIC.end() && OPERATORS_BASIC.find(input[i - 1]) != OPERATORS_BASIC.end()) && OPERATORS_BASIC.find(input[i+1]) != OPERATORS_BASIC.end())) { std::cout << "Too many operators bunched up together\n"; return false; }
 	}
 
 	utils.debugOutput("Parantheses counts: ['(: " + std::to_string(parantheseCounts['(']) + "'] ['): " + std::to_string(parantheseCounts[')']) + "']"); // so cute of me to immitate the readability of c-library code
@@ -79,8 +82,10 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 	std::string currentNum = "";
 	std::string currentOp = "";
 
-	for (const auto& c : input)
+	for (int i=0; i<input.size(); i++)
 	{
+		const auto& c = input[i];
+
 		if (isdigit(c) || c == '.') currentNum += c;
 		else if (isalpha(c)) currentOp += c;
 
@@ -104,6 +109,12 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 				token.push_back(currentNum);
 				currentNum = "";
 			}
+
+			// if '-' is found after an operator / paranthese. Add it to currentNum
+			if (input[i + 1] == '-' && (OPERATORS_BASIC.find(c) != OPERATORS_BASIC.end() || c == '(')) { currentNum += input[i + 1]; i++; }
+
+			// skip the '+' if it is after an operator / paranthese
+			if (input[i + 1] == '+' && (OPERATORS_BASIC.find(c) != OPERATORS_BASIC.end() || c == '(')) { i++; }
 
 			token.push_back(std::string(1, c));
 		}
@@ -204,7 +215,7 @@ bool Calculator::validateInput(const std::vector<std::string>& input)
 {
 	for (int i = 0; i < input.size(); i++)
 	{
-		if (input[i] == "s" && std::stoi(input[i + 1]) < 0) { std::cout << "Finding the square root of a negative number / 0 is impossible\n"; return false; }
+		if (input[i] == "s" && std::stoi(input[i + 1]) < 0) { std::cout << "Finding the square root of a negative number is impossible.\n"; return false; }
 	}
 	return true;
 }
