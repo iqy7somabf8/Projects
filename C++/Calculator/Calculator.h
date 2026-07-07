@@ -15,8 +15,6 @@ public:
 
 	void Menu();
 
-	double sqrt(int number);
-
 	double evaluateInput(const std::string& input);
 
 private:

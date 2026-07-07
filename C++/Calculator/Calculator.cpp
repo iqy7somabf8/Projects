@@ -15,35 +15,6 @@ Calculator::~Calculator() = default;
 void Calculator::setDebug() { utils.setDebug(); }
 bool Calculator::getDebug() const { return utils.getDebug(); }
 
-double Calculator::sqrt(int number)
-{
-	double result = 1;
-	for (int i = 0; i < 99; i++) result = (result + number / result) / 2;
-	return result;
-}
-	/*if (number == 1 || number == 0) return number;
-
-	int l = 1;
-	int r = number;
-
-	while (l <= r)
-	{
-
-	int m = l + (r - l) / 2;
-
-	long long square = (long long)m * m;
-
-	if (square > number) r = m - 1;
-	else if (square == number) return m;
-	else l = m + 1;
-	}
-
-	return r; 
-	*/
-
-	// Only able to return integers.
-	// Sadly has to be replaced by an inferior algorithm that takes around 99 tried to guesstimate the square root
-
 //In-order executed methods // not anymore tho its kinda fucked
 void Calculator::Menu() {
 	std::cout << "Calculator\n"
@@ -264,7 +235,7 @@ std::vector<std::string> Calculator::squareRoot(std::vector<std::string>& token,
 	utils.debugOutput("Square Root Calculation");
 	utils.changeIndentation(Utils::INCREASE_INDENT);
 	double squareNumber = std::stod(token[index + 1]);
-	double result = sqrt(squareNumber);
+	double result = std::sqrt(squareNumber);
 	utils.debugOutput("Inbetween result: ", result);
 	utils.debugOutput("Index: ", index);
 	return utils.cleanup(token, index, result, true);
