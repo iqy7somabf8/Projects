@@ -86,30 +86,29 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 
 		else if (OPERATORS_BASIC.find(c) != OPERATORS_BASIC.end() || (c == '(' || c == ')'))
 		{
+			if (!currentOp.empty() && OPERATORS_ADVANCED.find(currentOp) == OPERATORS_ADVANCED.end())
+			{
+
+				std::cout << "Invalid Operator found\n";
+				utils.clearCin();
+				return {};
+			}
+			else if (!currentOp.empty())
+			{
+				token.push_back(currentOp);
+				currentOp = "";
+			}
+
 			if (!currentNum.empty())
 			{
 				token.push_back(currentNum);
 				currentNum = "";
 			}
 
-			if (!currentOp.empty() && OPERATORS_ADVANCED.find(currentOp) == OPERATORS_ADVANCED.end())
-			{
-				
-				std::cout << "Invalid Operator found\n";
-				utils.clearCin();
-				return {};
-			}
-			else if(!currentOp.empty())
-			{
-				token.push_back(currentOp);
-				currentOp = "";
-			}
-
 			token.push_back(std::string(1, c));
 		}
 	}
 
-	if (!currentNum.empty()) token.push_back(currentNum);
 	if (!currentOp.empty() && OPERATORS_ADVANCED.find(currentOp) == OPERATORS_ADVANCED.end())
 	{
 		std::cout << "Invalid Operator found\n";
@@ -117,6 +116,7 @@ std::vector<std::string> Calculator::tokenize(const std::string& input)
 		return {};
 	}
 	else if (!currentOp.empty()) token.push_back(currentOp);
+	if (!currentNum.empty()) token.push_back(currentNum);
 
 	utils.debugOutput("Tokens:");
 	utils.debugVectorOutput(token);

@@ -25,7 +25,7 @@ int main() {
 
         if (input == "end" || input == "End" || input == "END") { std::cout << "Stopping...\n"; break; }
 
-        std::cout << "Result: " << (calc.getDebug() ? "\n" : "") << calc.evaluateInput(input) << "\n";
+        std::cout << "Result: " << (calc.getDebug() ? "\n" : "") << calc.evaluateInput(input) << "\n\n";
     }
     return 0;
 }
