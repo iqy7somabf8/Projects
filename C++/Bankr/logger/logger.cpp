@@ -11,7 +11,9 @@ Logger::Logger(){
         std::cerr << "Error creating log file!\n";
     }
     else{
-        logfile << "----- New Session -----\n"; 
+        time_t time = this->getCurrentTime();
+        std::string timestamp = std::ctime(&time);
+        logfile << "----- New Session " << "(" << timestamp << ")" << "-----\n"; 
         logfile.close();
     }
 }
